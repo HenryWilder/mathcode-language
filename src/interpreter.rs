@@ -1,5 +1,5 @@
-use crate::compiler::{Instruction,Program};
+use crate::compiler::Program;
 
-pub fn interpret(code: &Program) {
+pub fn interpret(_code: &Program) {
 
 }

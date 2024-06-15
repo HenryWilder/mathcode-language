@@ -1,19 +1,22 @@
-use std::env;
+use std::{env,path::Path};
 
 pub mod compiler;
 pub mod interpreter;
 
-use crate::compiler::{Program,compile};
+use crate::compiler::compile;
 use crate::interpreter::interpret;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    dbg!(args);
-    if args.len() != 2 {
-        println!("Not enough arguments. Expected 1, got {}", args.len() - 1);
+    if args.len() < 2 {
+        println!("Not enough arguments. Need file to compile.");
         return;
     }
-    let filename = args[1];
-    let compiled: Program = compile(filename);
-    interpret(&compiled);
+    let filename = &args[1];
+    println!("Compiling \"{filename}\"...");
+    let path = Path::new(filename);
+    match compile(path) {
+        Ok(program) => interpret(&program),
+        Err(err) => eprintln!("{err}"),
+    }
 }
