@@ -198,7 +198,7 @@ impl Program {
     }
 
     pub fn into_tex(&self) -> String {
-        let mut result: String = "\\documentclass{article}\n\\usepackage{geometry}\n\\usepackage{graphicx}\n\\usepackage{amssymb}\n\\usepackage{amsmath}\n\\usepackage{amsthm}\n\\usepackage{empheq}\n\\usepackage{mdframed}\n\\usepackage{booktabs}\n\\usepackage{lipsum}\n\\usepackage{graphicx}\n\\usepackage{color}\n\\usepackage{psfrag}\n\\usepackage{bm}\n\\begin{document}\n\\begin{align*}\n".into();
+        let mut result: String = "\\documentclass{article}\n\\usepackage[dvipsnames]{xcolor}\n\\usepackage{graphicx,amssymb,amsmath,amsthm,empheq,mdframed,color,bm}\n\\begin{document}\n\\begin{align*}\n".into();
         for statement in &self.statements {
             for expression in &statement.expressions {
                 result.push_str("&");
@@ -243,9 +243,9 @@ impl Program {
                                 Macro::Frac  => "\\frac" .into(),
                             },
                         Instruction::Var   (x)
-                            => format!("{}", x),
+                            => format!("{x}"),
                         Instruction::Num   (x)
-                            => format!("{}", x),
+                            => format!("{x}"),
                         Instruction::Scope (x)
                             => match x {
                                 Scope::Pop  => "}".into(),
@@ -257,7 +257,7 @@ impl Program {
             }
             result.push_str("\\\\\n");
         }
-        result.push_str("\\end{align*}\n\\end{document}");
+        result.push_str("\\end{align*}\n\\end{document}\n");
         result
     }
 }
