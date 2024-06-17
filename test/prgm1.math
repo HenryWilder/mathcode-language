@@ -1,6 +1,1 @@
-% hidden
-\comment{visible};
-a &= 1 * 1 \comment{visible}; % hidden
-a' &= a + 1;
-\print(a');
-;
+\print{\text{Hello world}};
