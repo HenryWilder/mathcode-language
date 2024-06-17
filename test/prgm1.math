@@ -1,1 +1,2 @@
-\print{\text{Hello world}};
+\Let x = 6;
+\print(\text{The value of \(x\) is: } \val{x});

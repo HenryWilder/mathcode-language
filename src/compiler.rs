@@ -111,6 +111,7 @@ impl ToString for Symbol {
 #[derive(Debug)]
 pub enum Macro {
     Comment,
+    Let,
     Times,
     Div,
     Frac,
@@ -124,6 +125,7 @@ impl FromStr for Macro {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             r"\comment" => Ok(Macro::Comment),
+            r"\Let"     => Ok(Macro::Let),
             r"\times"   => Ok(Macro::Times),
             r"\div"     => Ok(Macro::Div),
             r"\frac"    => Ok(Macro::Frac),
@@ -139,6 +141,7 @@ impl ToString for Macro {
     fn to_string(&self) -> String {
         match self {
             &Macro::Comment => r"\comment".to_owned(),
+            &Macro::Let     => r"\Let"   .to_owned(),
             &Macro::Times   => r"\times"  .to_owned(),
             &Macro::Div     => r"\div"    .to_owned(),
             &Macro::Frac    => r"\frac"   .to_owned(),
