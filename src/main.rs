@@ -23,17 +23,17 @@ fn main() {
                     let tex_path = path.with_extension("tex");
                     match fs::write(&tex_path, program.into_tex()) {
                         Ok(()) => {
-                            match Command::new("pdflatex").args(&[
+                            let output = Command::new("pdflatex").args(&[
                                 "-output-directory",
                                 tex_path.parent().unwrap().to_str().unwrap(),
                                 tex_path.to_str().unwrap()
-                            ]).output() {
-                                Ok(_)  => (),
-                                Err(err) => {
-                                    eprintln!("{err}");
-                                    return;
-                                }
-                            }
+                            ]).output().expect("failed to execute pdflatex");
+
+                            println!("status: {}", output.status);
+                            std::io::Write::write_all(&mut std::io::stdout(), &output.stdout).unwrap();
+                            std::io::Write::write_all(&mut std::io::stderr(), &output.stderr).unwrap();
+
+                            assert!(output.status.success());
                         },
                         Err(err) => {
                             eprintln!("{err}");

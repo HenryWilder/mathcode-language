@@ -38,55 +38,113 @@ impl FromStr for Symbol {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "\\{" => Ok(Symbol::OpenBrace),
-            "\\}" => Ok(Symbol::CloseBrace),
-            "`" => Ok(Symbol::Grave),
-            "~" => Ok(Symbol::Squig),
-            "!" => Ok(Symbol::Excla),
-            "@" => Ok(Symbol::At),
-            "#" => Ok(Symbol::Pound),
-            "$" => Ok(Symbol::Dollar),
-            "%" => Ok(Symbol::Percent),
-            "^" => Ok(Symbol::Pow),
-            "&" => Ok(Symbol::Amp),
-            "*" => Ok(Symbol::Mul),
-            "(" => Ok(Symbol::OpenParen),
-            ")" => Ok(Symbol::CloseParen),
-            "[" => Ok(Symbol::OpenBrack),
-            "]" => Ok(Symbol::CloseBrack),
-            "<" => Ok(Symbol::LessThan),
-            ">" => Ok(Symbol::GreaterThan),
-            "," => Ok(Symbol::Comma),
-            "." => Ok(Symbol::Dot),
-            "/" => Ok(Symbol::Div),
-            "?" => Ok(Symbol::Question),
-            ":" => Ok(Symbol::Color),
-            ";" => Ok(Symbol::Semi),
-            "'" => Ok(Symbol::Apost),
-            "-" => Ok(Symbol::Sub),
-            "_" => Ok(Symbol::Underscore),
-            "=" => Ok(Symbol::Equals),
-            "+" => Ok(Symbol::Add),
+            r"\{" => Ok(Symbol::OpenBrace),
+            r"\}" => Ok(Symbol::CloseBrace),
+            "`"   => Ok(Symbol::Grave),
+            "~"   => Ok(Symbol::Squig),
+            "!"   => Ok(Symbol::Excla),
+            "@"   => Ok(Symbol::At),
+            "#"   => Ok(Symbol::Pound),
+            "$"   => Ok(Symbol::Dollar),
+            "%"   => Ok(Symbol::Percent),
+            "^"   => Ok(Symbol::Pow),
+            "&"   => Ok(Symbol::Amp),
+            "*"   => Ok(Symbol::Mul),
+            "("   => Ok(Symbol::OpenParen),
+            ")"   => Ok(Symbol::CloseParen),
+            "["   => Ok(Symbol::OpenBrack),
+            "]"   => Ok(Symbol::CloseBrack),
+            "<"   => Ok(Symbol::LessThan),
+            ">"   => Ok(Symbol::GreaterThan),
+            ","   => Ok(Symbol::Comma),
+            "."   => Ok(Symbol::Dot),
+            "/"   => Ok(Symbol::Div),
+            "?"   => Ok(Symbol::Question),
+            ":"   => Ok(Symbol::Color),
+            ";"   => Ok(Symbol::Semi),
+            "'"   => Ok(Symbol::Apost),
+            "-"   => Ok(Symbol::Sub),
+            "_"   => Ok(Symbol::Underscore),
+            "="   => Ok(Symbol::Equals),
+            "+"   => Ok(Symbol::Add),
             _ => Err(()),
+        }
+    }
+}
+
+impl ToString for Symbol {
+    fn to_string(&self) -> String {
+        match self {
+            &Symbol::OpenBrace   => r"\{".to_owned(),
+            &Symbol::CloseBrace  => r"\}".to_owned(),
+            &Symbol::Grave       => "`".to_owned(),
+            &Symbol::Squig       => "~".to_owned(),
+            &Symbol::Excla       => "!".to_owned(),
+            &Symbol::At          => "@".to_owned(),
+            &Symbol::Pound       => "#".to_owned(),
+            &Symbol::Dollar      => "$".to_owned(),
+            &Symbol::Percent     => "%".to_owned(),
+            &Symbol::Pow         => "^".to_owned(),
+            &Symbol::Amp         => "&".to_owned(),
+            &Symbol::Mul         => "*".to_owned(),
+            &Symbol::OpenParen   => "(".to_owned(),
+            &Symbol::CloseParen  => ")".to_owned(),
+            &Symbol::OpenBrack   => "[".to_owned(),
+            &Symbol::CloseBrack  => "]".to_owned(),
+            &Symbol::LessThan    => "<".to_owned(),
+            &Symbol::GreaterThan => ">".to_owned(),
+            &Symbol::Comma       => ",".to_owned(),
+            &Symbol::Dot         => ".".to_owned(),
+            &Symbol::Div         => "/".to_owned(),
+            &Symbol::Question    => "?".to_owned(),
+            &Symbol::Color       => ":".to_owned(),
+            &Symbol::Semi        => ";".to_owned(),
+            &Symbol::Apost       => "'".to_owned(),
+            &Symbol::Sub         => "-".to_owned(),
+            &Symbol::Underscore  => "_".to_owned(),
+            &Symbol::Equals      => "=".to_owned(),
+            &Symbol::Add         => "+".to_owned(),
         }
     }
 }
 
 #[derive(Debug)]
 pub enum Macro {
+    Comment,
     Times,
     Div,
     Frac,
+    Print,
+    Input,
+    Limit,
 }
 
 impl FromStr for Macro {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "\\times" => Ok(Macro::Times),
-            "\\div"   => Ok(Macro::Div),
-            "\\frac"  => Ok(Macro::Frac),
+            r"\comment" => Ok(Macro::Comment),
+            r"\times"   => Ok(Macro::Times),
+            r"\div"     => Ok(Macro::Div),
+            r"\frac"    => Ok(Macro::Frac),
+            r"\print"   => Ok(Macro::Print),
+            r"\input"   => Ok(Macro::Input),
+            r"\lim"     => Ok(Macro::Limit),
             _ => Err(format!("\"{s}\" is not a recognized macro.")),
+        }
+    }
+}
+
+impl ToString for Macro {
+    fn to_string(&self) -> String {
+        match self {
+            &Macro::Comment => r"\comment".to_owned(),
+            &Macro::Times   => r"\times"  .to_owned(),
+            &Macro::Div     => r"\div"    .to_owned(),
+            &Macro::Frac    => r"\frac"   .to_owned(),
+            &Macro::Print   => r"\print"  .to_owned(),
+            &Macro::Input   => r"\input"  .to_owned(),
+            &Macro::Limit   => r"\lim"    .to_owned(),
         }
     }
 }
@@ -97,22 +155,31 @@ pub enum Scope {
     Push,
 }
 
+#[derive(Debug)]
+pub enum Comment {
+    Block(String),
+    Annotation(String),
+    Inline(String),
+}
+
 pub enum Instruction {
-    Symbol(Symbol),
-    Macro (Macro ),
-    Var   (String),
-    Num   (i32   ),
-    Scope (Scope ),
+    Symbol (Symbol ),
+    Macro  (Macro  ),
+    Var    (String ),
+    Num    (i32    ),
+    Scope  (Scope  ),
+    Newline,
 }
 
 impl Display for Instruction {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", match self {
-            Instruction::Symbol(x) => format!("Symbol({x:?})"),
-            Instruction::Macro(x)  => format!( "Macro({x:?})"),
-            Instruction::Var(x)    => format!(   "Var({x:?})"),
-            Instruction::Num(x)    => format!(   "Num({x:?})"),
-            Instruction::Scope(x)  => format!( "Scope({x:?})"),
+            Instruction::Symbol(x)  => format!("Symbol({x:?})"),
+            Instruction::Macro(x)   => format!( "Macro({x:?})"),
+            Instruction::Var(x)     => format!(   "Var({x:?})"),
+            Instruction::Num(x)     => format!(   "Num({x:?})"),
+            Instruction::Scope(x)   => format!( "Scope({x:?})"),
+            Instruction::Newline    => "Newline".to_owned(),
         })
     }
 }
@@ -130,35 +197,28 @@ impl FromStr for Instruction {
                 Ok(m) => Ok(Instruction::Macro(m)),
                 Err(err) => Err(err),
             }
-        } else if re_op.is_match(s) {
-            Ok(Instruction::Symbol(Symbol::from_str(s).unwrap()))
-        } else if re_num.is_match(s) {
-            Ok(Instruction::Num(i32::from_str(s).unwrap()))
         } else if re_var.is_match(s) {
             Ok(Instruction::Var(s.into()))
+        } else if re_op.is_match(s) {
+            match Symbol::from_str(s) {
+                Ok(sym) => Ok(Instruction::Symbol(sym)),
+                Err(()) => Err(format!("\"{s}\" is not a recognized symbol")),
+            }
+        } else if re_num.is_match(s) {
+            Ok(Instruction::Num(i32::from_str(s).unwrap()))
         } else {
-            Err("Unexpected Pattern".to_owned())
+            Err(format!("Unsure what \"{s}\" means"))
         }
     }
 }
 
-pub struct Expression {
-    instructions: Vec<Instruction>,
-}
-
-impl Expression {
-    fn new() -> Self {
-        Self { instructions: Vec::new() }
-    }
-}
-
 pub struct Statement {
-    expressions: Vec<Expression>,
+    instructions: Vec<Instruction>,
 }
 
 impl Statement {
     fn new() -> Self {
-        Self { expressions: Vec::new() }
+        Self { instructions: Vec::new() }
     }
 }
 
@@ -171,111 +231,76 @@ impl Program {
         Self { statements: Vec::new() }
     }
 
+    fn is_current_statement_empty(&self) -> Option<bool> {
+        self.statements.last().map(|last| last.instructions.is_empty())
+    }
+
     fn push_statement(&mut self) {
         self.statements.push(Statement::new());
     }
 
-    fn push_expression(&mut self) {
-        let statement_index = self.statements.len() - 1;
-        self.statements[statement_index].expressions.push(Expression::new());
-    }
-
     fn push_instruction(&mut self, instruction: Instruction) {
-        let statement_index = self.statements.len() - 1;
-        let expression_index = self.statements[statement_index].expressions.len() - 1;
-        self
-            .statements[statement_index]
-            .expressions[expression_index]
-            .instructions.push(instruction);
-    }
-
-    fn clean(&mut self) {
-        let statement_index = self.statements.len() - 1;
-        let expression_index = self.statements[statement_index].expressions.len() - 1;
-        if self.statements[statement_index].expressions[expression_index].instructions.len() == 0 {
-            self.statements.pop();
+        if self.statements.len() < 1 {
+            self.push_statement();
         }
+        self.statements.last_mut().unwrap().instructions.push(instruction);
     }
 
     pub fn into_tex(&self) -> String {
-        let mut result: String = "\\documentclass{article}\n\\usepackage[dvipsnames]{xcolor}\n\\usepackage{graphicx,amssymb,amsmath,amsthm,empheq,mdframed,color,bm}\n\\begin{document}\n\\begin{align*}\n".into();
+        let mut result: String =
+r"\documentclass{article}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx,amssymb,amsmath,amsthm,empheq,mdframed,color,bm}
+\newcommand\print{\text{print}}
+\newcommand\comment[1]{~{\color{ForestGreen}\text{#1}}~}
+\begin{document}
+\begin{align*}
+".into();
         for statement in &self.statements {
-            for expression in &statement.expressions {
-                result.push_str("&");
-                for instruction in &expression.instructions {
-                    let instruction_string: String = match instruction {
-                        Instruction::Symbol(x)
-                            => match x {
-                                Symbol::OpenBrace   => "\\{".into(),
-                                Symbol::CloseBrace  => "\\}".into(),
-                                Symbol::Grave       => "`".into(),
-                                Symbol::Squig       => "~".into(),
-                                Symbol::Excla       => "!".into(),
-                                Symbol::At          => "@".into(),
-                                Symbol::Pound       => "#".into(),
-                                Symbol::Dollar      => "$".into(),
-                                Symbol::Percent     => "%".into(),
-                                Symbol::Pow         => "^".into(),
-                                Symbol::Amp         => "&".into(),
-                                Symbol::Mul         => "*".into(),
-                                Symbol::OpenParen   => "(".into(),
-                                Symbol::CloseParen  => ")".into(),
-                                Symbol::OpenBrack   => "[".into(),
-                                Symbol::CloseBrack  => "]".into(),
-                                Symbol::LessThan    => "<".into(),
-                                Symbol::GreaterThan => ">".into(),
-                                Symbol::Comma       => ",".into(),
-                                Symbol::Dot         => ".".into(),
-                                Symbol::Div         => "/".into(),
-                                Symbol::Question    => "?".into(),
-                                Symbol::Color       => ":".into(),
-                                Symbol::Semi        => ";".into(),
-                                Symbol::Apost       => "'".into(),
-                                Symbol::Sub         => "-".into(),
-                                Symbol::Underscore  => "_".into(),
-                                Symbol::Equals      => "=".into(),
-                                Symbol::Add         => "+".into(),
-                            },
-                        Instruction::Macro (x)
-                            => match x {
-                                Macro::Times => "\\times".into(),
-                                Macro::Div   => "\\div"  .into(),
-                                Macro::Frac  => "\\frac" .into(),
-                            },
-                        Instruction::Var   (x)
-                            => format!("{x}"),
-                        Instruction::Num   (x)
-                            => format!("{x}"),
-                        Instruction::Scope (x)
-                            => match x {
-                                Scope::Pop  => "}".into(),
-                                Scope::Push => "{".into(),
-                            },
-                    };
-                    result.push_str(&instruction_string);
-                }
+            // result.push_str(r"&");
+            for instruction in &statement.instructions {
+                let instruction_string: String = match instruction {
+                    Instruction::Symbol(x) => x.to_string(),
+                    Instruction::Macro (x) => x.to_string(),
+                    Instruction::Var   (x) => format!("{x}"),
+                    Instruction::Num   (x) => format!("{x}"),
+                    Instruction::Scope (x) => match x {
+                        &Scope::Pop  => "}".into(),
+                        &Scope::Push => "{".into(),
+                    },
+                    Instruction::Newline => r"\\".into(),
+                };
+                result.push_str(&instruction_string);
             }
-            result.push_str("\\\\\n");
+            result.push_str(concat!(r"\\", "\n"));
         }
-        result.push_str("\\end{align*}\n\\end{document}\n");
+        result.push_str(
+r"\end{align*}
+\end{document}");
         result
     }
 }
 
 pub fn compile(code: String) -> Result<Program,String> {
-    let re = Regex::new(r"(\d+\.?\d*|\.\d+|[A-Za-z]'*|\\\{|\\\}|\\\\|\\[A-Za-z]+|[`~!@#$%^&*()[\\]{}<>,./?:;'|\-_=+])").unwrap();
+    let re = Regex::new(r"(%.*?\n|\d+\.?\d*|\.\d+|[A-Za-z]'*|\\\{|\\\}|\\\\|\\[A-Za-z]+|[`~!@#$%^&*()[\\]{}<>,./?:;'|\-_=+])").unwrap();
 
     let mut program = Program::new();
-    program.statements.push(Statement::new());
-    program.statements[0].expressions.push(Expression::new());
+    program.push_statement();
     for captures in re.captures_iter(&code) {
-        let word = captures.get(0).unwrap().as_str();
-        print!("{word}: ");
+        let word = captures.get(0).unwrap().as_str().trim();
+        print!("\"{word}\": ");
+        if word.starts_with('%') {
+            println!("[COMMENT]");
+            continue;
+        }
         match word {
             ";" => {
-                println!("[END OF STATEMENT]");
-                program.push_statement();
-                program.push_expression();
+                if program.is_current_statement_empty().unwrap_or(true) {
+                    println!("[END OF (empty) STATEMENT (ignored)]");
+                } else {
+                    println!("[END OF STATEMENT]");
+                    program.push_statement();
+                }
             },
             "{" => {
                 println!("[PUSH SCOPE]");
@@ -285,10 +310,14 @@ pub fn compile(code: String) -> Result<Program,String> {
                 println!("[POP SCOPE]");
                 program.push_instruction(Instruction::Scope(Scope::Pop));
             },
+            r"\\" => {
+                println!("[NEWLINE]");
+                program.push_instruction(Instruction::Newline);
+            }
             _ => {
                 match Instruction::from_str(word) {
                     Ok(instruction) => {
-                        println!("[{instruction}] {word}");
+                        println!("[{instruction}]");
                         program.push_instruction(instruction);
                     }
                     Err(err) => return Err(err),
@@ -296,6 +325,5 @@ pub fn compile(code: String) -> Result<Program,String> {
             },
         }
     }
-    program.clean();
     Ok(program)
 }
