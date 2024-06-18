@@ -4,7 +4,7 @@ use std::{fs, env, path::Path};
 pub mod compiler;
 pub mod interpreter;
 
-use crate::compiler::compile;
+use crate::compiler::{compile, IntoTex};
 use crate::interpreter::interpret;
 
 fn main() {

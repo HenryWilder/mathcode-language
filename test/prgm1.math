@@ -1,2 +1,6 @@
-\Let x = 6;
-\print(\text{The value of \(x\) is: } \val{x});
+\letvar f(x) = \begin{cases}            % let f(x) be a piecewise such that:
+    \frac{x}{2} &\forcase x \in 2\Z \\  %   if x is even, f(x) |-> x/2
+    3x + 1       \elsecase              %   otherwise,    f(x) |-> 3x+1
+\end{cases} \\
+\letvar x \in \Z = \prompt{} \\         % let x be an integer given as an input
+\display{f(x)}                          % display the result of f(x)
